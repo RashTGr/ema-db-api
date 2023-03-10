@@ -1,4 +1,6 @@
 const express = require('express');
+
+// Create a new router instance and then defines the routes
 const router = express.Router();
 const studentController = require('../Student/studentController');
 

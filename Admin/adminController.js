@@ -1,78 +1,63 @@
-const mysql = require('mysql2/promise');
-const db = require('../config/db');
+const pool = require('../config/db');
 
 // To check if there are any validation errors
 const { validationResult } = require('express-validator');
 
 // API key for Admin
-const adminApiKey = 'myKey';
-const adminRoleID = '1';
+exports.apiKey = (req, res, next) => {
+    const apiKey = req.headers['api-key'];
+    const roleID = req.headers['roleid'];
+
+    // Check if the apiKey and roleID headers are present and valid
+    if (apiKey !== 'authAdmin' || roleID !== 'roleid-1') {
+        return res.status(403).json({ error: 'Unauthorized role' });
+    }
+    // If headers are valid, move on to the next middleware
+    next();
+}
 
 // Course availability
-const updateCourseAvailability = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
-    }
+exports.updateCourseAvailability = async (req, res) => {
     const { isAvailable } = req.body;
     const { courseID } = req.params;
 
     try {
-        // check if user is Admin or not
-        const apiKey = req.headers['x-api-key'];
-        const roleID = req.headers['role-id'];
-        if (apiKey !== adminApiKey || roleID !== adminRoleID) {
-            return res.status(403).json({message: 'Access denied'});
-        }
-        const connection = await mysql.createConnection(db);
-        const [result] = await connection.execute(
+        const conn = await pool.getConnection();
+        const [result] = await conn.query(
             'UPDATE courses SET isAvailable = ? WHERE CourseID = ?',
             [isAvailable, courseID]
         );
-        connection.end();
+        conn.release();
         if (result.affectedRows === 0) {
-            return res.status(404).json({message: 'Course not found'});
+            return res.status(404).json({ message: 'Course not found' });
         }
-        res.status(200).json({message: 'Course availability updated successfully'});
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: 'Internal server error'});
+        res.status(200).json({ message: 'Course availability updated successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
 
 // Assign teacher to a course
-const assignTeacherToCourse = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(422).json({errors: errors.array()});
-    }
+exports.assignTeacherToCourse = async (req, res) => {
     const { teacherID } = req.body;
     const { courseID } = req.params;
 
     try {
-        // check if user is Admin or not
-        const apiKey = req.headers['x-api-key'];
-        const roleID = req.headers['role-id'];
-        if (apiKey !== adminApiKey || roleID !== adminRoleID) {
-            return res.status(403).json({ message: 'Access denied'});
-        }
-
-        const connection = await mysql.createConnection(db);
-        const [result] = await connection.execute(
+        const conn = await pool.getConnection();
+        const [result] = await conn.query(
             'UPDATE courses SET TeacherID = ? WHERE CourseID = ?',
             [teacherID, courseID]
         );
-        connection.end();
+        conn.release();
         if (result.affectedRows === 0) {
-            return res.status(404).json({ message: 'Course not found'});
+            return res.status(404).json({ message: 'Course not found' });
         }
-        res.status(200).json({ message:  'Teacher assignd to couurse successfully'});
-    } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: 'Internal server error!'});
+        res.status(200).json({ message: 'Teacher assigned to course successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-
-module.exports = { updateCourseAvailability, assignTeacherToCourse };
 
 
