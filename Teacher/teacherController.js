@@ -1,6 +1,6 @@
-const db = require('../config/db');
+const pool = require('../config/db');
 
-// API key middleware
+// API key middleware for Teacher
 exports.apiKeyMiddleware = (req, res, next) => {
     const apiKey = req.headers['api-key'];
     const roleID = req.headers['roleid'];
@@ -15,32 +15,34 @@ exports.apiKeyMiddleware = (req, res, next) => {
 }
 
 // Get all courses assigned to a teacher
-exports.getCourses = (req, res) => {
+exports.getCourses = async (req, res) => {
     const { userID } = req.params;
 
-    db.query('SELECT * FROM courses WHERE TeacherID = ?',
-        [userID], (err, result) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({ error: 'Internal Server Error' });
-            }
-            res.status(200).json(result);
-        });
+    try {
+        const conn = await pool.getConnection();
+        const [result] = await conn.query('SELECT * FROM courses WHERE TeacherID = ?', [userID]);
+        conn.release();
+        res.status(200).json(result);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error'});
+    }
 };
 
 // Assign marks to students for a course
-exports.assignMarks = (req, res) => {
+exports.assignMarks = async (req, res) => {
     const { courseID } = req.params;
     const { userID, mark } = req.body;
 
     // Update the mark for the student in the course
-    db.query('UPDATE enrolments SET Mark = ? WHERE CourseID = ? AND UserID = ?',
-        [mark, courseID, userID], (err, result) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).json({ error: 'Internal Server Error' });
-            }
-            res.status(200).json({ message: 'Mark assigned successfully' });
-        });
+    try {
+        const conn = await pool.getConnection();
+        await conn.query('UPDATE enrolments SET Mark = ? WHERE CourseID = ? AND UserID = ?', [mark, courseID, userID]);
+        conn.release();
+        res.status(200).json({ message: 'Mark assigned successfuly'});
+    }catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error!'});
+    }
 };
 
