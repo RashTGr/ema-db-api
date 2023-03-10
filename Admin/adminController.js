@@ -1,68 +1,78 @@
-const course = require('../models/course');
-const role = require('../models/role');
-const user = require('../models/user');
-const enrolment = require('../models/enrolment');
+const mysql = require('mysql2/promise');
+const db = require('../config/db');
 
-// Function to add a new course
-async function addCourse(req, res) {
-    try {
-        // Check if the user is an admin
-        const adminRole = await role.getRoleByName('admin');
-        if (req.body.roleId !== adminRole.RoleID) {
-            return res.status(403).json({ message: 'You do not have permission to add a new course.' });
-        }
+// To check if there are any validation errors
+const { validationResult } = require('express-validator');
 
-        // Create the new course
-        const newCourse = await course.create(req.body);
+// API key for Admin
+const adminApiKey = 'myKey';
+const adminRoleID = '1';
 
-        res.json({ message: 'Course added successfully.', course: newCourse });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Internal server error.' });
+// Course availability
+const updateCourseAvailability = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json({ errors: errors.array() });
     }
-}
+    const { isAvailable } = req.body;
+    const { courseID } = req.params;
 
-// Function to delete a course
-async function deleteCourse(req, res) {
     try {
-        // Check if the user is an admin
-        const adminRole = await role.getRoleByName('admin');
-        if (req.body.roleId !== adminRole.RoleID) {
-            return res.status(403).json({ message: 'You do not have permission to delete a course.' });
+        // check if user is Admin or not
+        const apiKey = req.headers['x-api-key'];
+        const roleID = req.headers['role-id'];
+        if (apiKey !== adminApiKey || roleID !== adminRoleID) {
+            return res.status(403).json({message: 'Access denied'});
         }
-
-        // Delete the course
-        const courseId = req.params.id;
-        const deletedCourse = await course.destroy({ where: { CourseID: courseId } });
-
-        if (deletedCourse === 0) {
-            return res.status(404).json({ message: 'Course not found.' });
+        const connection = await mysql.createConnection(db);
+        const [result] = await connection.execute(
+            'UPDATE courses SET isAvailable = ? WHERE CourseID = ?',
+            [isAvailable, courseID]
+        );
+        connection.end();
+        if (result.affectedRows === 0) {
+            return res.status(404).json({message: 'Course not found'});
         }
-
-        res.json({ message: 'Course deleted successfully.' });
+        res.status(200).json({message: 'Course availability updated successfully'});
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Internal server error.' });
+        console.log(err);
+        res.status(500).json({ message: 'Internal server error'});
     }
-}
+};
 
-// Function to get all enrolments
-async function getAllEnrolments(req, res) {
+// Assign teacher to a course
+const assignTeacherToCourse = async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).json({errors: errors.array()});
+    }
+    const { teacherID } = req.body;
+    const { courseID } = req.params;
+
     try {
-        // Check if the user is an admin
-        const adminRole = await role.getRoleByName('admin');
-        if (req.query.roleId !== adminRole.RoleID) {
-            return res.status(403).json({ message: 'You do not have permission to view all enrolments.' });
+        // check if user is Admin or not
+        const apiKey = req.headers['x-api-key'];
+        const roleID = req.headers['role-id'];
+        if (apiKey !== adminApiKey || roleID !== adminRoleID) {
+            return res.status(403).json({ message: 'Access denied'});
         }
 
-        // Get all enrolments
-        const enrolments = await enrolment.findAll({ include: [course, user] });
-
-        res.json(enrolments);
+        const connection = await mysql.createConnection(db);
+        const [result] = await connection.execute(
+            'UPDATE courses SET TeacherID = ? WHERE CourseID = ?',
+            [teacherID, courseID]
+        );
+        connection.end();
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Course not found'});
+        }
+        res.status(200).json({ message:  'Teacher assignd to couurse successfully'});
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Internal server error.' });
+        console.log(err);
+        res.status(500).json({ message: 'Internal server error!'});
     }
-}
+};
 
-module.exports = { addCourse, deleteCourse, getAllEnrolments };
+module.exports = { updateCourseAvailability, assignTeacherToCourse };
+
+
