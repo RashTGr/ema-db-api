@@ -1,7 +1,5 @@
 const pool = require('../config/db');
 
-// To check if there are any validation errors
-const { validationResult } = require('express-validator');
 
 // API key for Admin
 exports.apiKey = (req, res, next) => {
@@ -59,5 +57,4 @@ exports.assignTeacherToCourse = async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-
 

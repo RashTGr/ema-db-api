@@ -1,14 +1,10 @@
 const mysql = require('mysql2/promise');
 
-const db = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: 'groupc542',
-    database: 'mydb',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-});
+const db = mysql.createPool('mysql://root:groupc542@localhost/mydb');
 
+const query = (sql, params) => {
+    return db.query(sql, params);
+};
 
+module.exports = query;
 module.exports = db;

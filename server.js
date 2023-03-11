@@ -1,38 +1,41 @@
 const express = require('express');
 const app = express();
 const apiPort = process.env.apiPort || 3000;
+const mysql = require('mysql2');
 const db = require('./config/db');
+
+
+// Imports for admin, teacher and student routes
+const adminRoutes = require('./Admin/adminRoutes');
+const teacherRoutes = require('./Teacher/teacherRoutes');
+const studentRoutes = require('./Student/studentRoutes');
+
+
+// Establish a connection to the database
+try {
+    db.getConnection()
+        .then(connection => {
+            console.log('Connected to the MySQL database');
+            connection.release();
+        })
+        .catch(error => {
+            console.error('Failed to connect to the MySQL database', error);
+        });
+} catch (error) {
+    console.error('Failed to connect to the MySQL database', error);
+}
+
 
 // JSON middleware to parse request bodies
 app.use(express.json());
 
-// Imports for admin, teacher and student routes
-const adminRoute = require('./Admin/adminRoutes');
-const teacherRoute = require('./Teacher/teacherRoutes');
-const studentRoute = require('./Student/studentRoutes');
-
-// Define a root route to test that the server is running
-app.get('/', (req, res) => {
-    res.send('Server is running!');
-});
-
-
-
-// const adminRoutes = require('./Admin/adminRoutes');
-// const teacherRoutes = require('./Teacher/teacherRoutes');
-// const studentRoutes = require('./Student/studentRoutes');
-//
-// app.use(bodyParser.json());
-// app.use(cors());
-//
-// // Routes for different roles
-// app.use('/admin', authMiddleware.isAdmin, adminRoutes);
-// app.use('/teacher', authMiddleware.isTeacher, teacherRoutes);
-// app.use('/student', authMiddleware.isStudent, studentRoutes);
+// Use admin, student, and teacher routes
+app.use('/admin', adminRoutes);
+app.use('/teacher', teacherRoutes);
+app.use('/student', studentRoutes)
 
 
 // Start server and sync DB
-
 app.listen(apiPort, () => {
     console.log(`Server listening on PORT: ${apiPort}`);
 });

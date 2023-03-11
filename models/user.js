@@ -1,5 +1,5 @@
 // Database connection pool
-const db = require('../config/db');
+const { db } = require('../config/db');
 
 const User = function(user) {
     this.Name = user.Name;
