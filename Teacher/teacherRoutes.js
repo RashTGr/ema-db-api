@@ -6,6 +6,6 @@ const teacherController = require('../Teacher/teacherController');
 router.get('/teachers/:userID/courses',teacherController.apiKeyMiddleware , teacherController.getCourses);
 
 // Assign marks to students for a course
-router.put('/teachers/:userID/courses/:courseID/marks',teacherController.apiKeyMiddleware , teacherController.assignMarks);
+router.put('/courses/marks',teacherController.apiKeyMiddleware , teacherController.assignMarks);
 
 module.exports = router;
