@@ -38,8 +38,7 @@ exports.updateCourseAvailability = async (req, res) => {
 
 // Assign teacher to a course
 exports.assignTeacherToCourse = async (req, res) => {
-    const { teacherID } = req.body;
-    const { courseID } = req.params;
+    const { teacherID, courseID } = req.body;
 
     try {
         const conn = await pool.getConnection();

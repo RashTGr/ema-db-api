@@ -8,7 +8,7 @@ const adminController = require('../Admin/adminController');
 router.put('/courses/:courseID/availability', adminController.apiKey, adminController.updateCourseAvailability);
 
 // Assign courses to a teacher
-router.put('/courses/:courseID/teacher', adminController.apiKey, adminController.assignTeacherToCourse);
+router.put('/courses/teacher', adminController.apiKey, adminController.assignTeacherToCourse);
 
 module.exports = router;
 
