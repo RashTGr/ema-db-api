@@ -8,7 +8,7 @@ exports.apiKey = (req, res, next) => {
 
     // Check if the apiKey and roleID headers are present and valid
     if (apiKey !== 'authAdmin' || roleID !== 'roleid-1') {
-        return res.status(403).json({ error: 'Unauthorized role' });
+        return res.status(403).json({ error: 'Unauthorised activity!' });
     }
     // If headers are valid, move on to the next middleware
     next();
