@@ -7,7 +7,7 @@ exports.apiKeyMiddleware = (req, res, next) => {
 
     // Check if the apiKey and roleID headers are present and valid
     if (apiKey !== 'authTeacher' || roleID !== 'roleid-2') {
-        return res.status(403).json({ error: 'Unauthorized' });
+        return res.status(403).json({ error: 'Unauthorised activity!' });
     }
 
     // If headers are valid, move on to the next middleware
@@ -31,13 +31,12 @@ exports.getCourses = async (req, res) => {
 
 // Assign marks to students for a course
 exports.assignMarks = async (req, res) => {
-    const { courseID } = req.params;
-    const { userID, mark } = req.body;
+    const { userID, courseID, mark } = req.body;
 
     // Update the mark for the student in the course
     try {
         const conn = await pool.getConnection();
-        await conn.query('UPDATE enrolments SET Mark = ? WHERE CourseID = ? AND UserID = ?', [mark, courseID, userID]);
+        await conn.query('UPDATE enrolments SET Mark = ? WHERE UserID = ? AND CourseID = ?', [mark, userID, courseID]);
         conn.release();
         res.status(200).json({ message: 'Mark assigned successfuly'});
     }catch (error) {

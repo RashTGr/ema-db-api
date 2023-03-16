@@ -8,7 +8,7 @@ exports.apiKeyMiddleware = (req, res, next) => {
 
     // Check if the apiKey and roleID headers are present and valid
     if (apiKey !== 'authStudent' || roleID !== 'roleid-3') {
-        return res.status(403).json({ error: 'Unauthorized' });
+        return res.status(403).json({ error: 'Unauthorised activity!' });
     }
     // If headers are valid, move on to the next middleware
     next();
@@ -27,8 +27,8 @@ exports.getCourses = async (req, res) => {
     }
 };
 
-// Enroll in a course
-exports.enrollCourse = async (req, res) => {
+// Enrol in a course
+exports.enrolCourse = async (req, res) => {
     const { courseId, userId } = req.body;
 
     try {
@@ -46,7 +46,7 @@ exports.enrollCourse = async (req, res) => {
         await conn2.query('INSERT INTO enrolments (CourseID, UserID) VALUES (?, ?)', [courseId, userId]);
         conn2.release();
 
-        res.status(201).json({ message: 'Course enrollment successful' });
+        res.status(201).json({ message: 'Course enrolment successful' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error.' });

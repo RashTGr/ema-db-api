@@ -8,7 +8,7 @@ exports.apiKey = (req, res, next) => {
 
     // Check if the apiKey and roleID headers are present and valid
     if (apiKey !== 'authAdmin' || roleID !== 'roleid-1') {
-        return res.status(403).json({ error: 'Unauthorized role' });
+        return res.status(403).json({ error: 'Unauthorised activity!' });
     }
     // If headers are valid, move on to the next middleware
     next();
@@ -38,8 +38,7 @@ exports.updateCourseAvailability = async (req, res) => {
 
 // Assign teacher to a course
 exports.assignTeacherToCourse = async (req, res) => {
-    const { teacherID } = req.body;
-    const { courseID } = req.params;
+    const { teacherID, courseID } = req.body;
 
     try {
         const conn = await pool.getConnection();
