@@ -1,0 +1,30 @@
+Directory tree of the project: "API-End of Module Assignment"
+
+C:api-EoMA
+|   .gitignore
+|   Dir_tree.txt
+|   package-lock.json
+|   package.json
+|   README.md
+|   server.js
+|   
++---Admin
+|       adminController.js
+|       adminRoutes.js
+|       
++---config
+|       db.js
+|       
++---models
+|       course.js
+|       enrolment.js
+|       role.js
+|       user.js
+|           
++---Student
+|       studentController.js
+|       studentRoutes.js
+|       
+\---Teacher
+        teacherController.js
+        teacherRoutes.js
