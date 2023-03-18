@@ -18,7 +18,9 @@ exports.apiKeyMiddleware = (req, res, next) => {
 exports.getCourses = async (req, res) => {
     try {
         const conn = await pool.getConnection();
-        const [result] = await conn.query('SELECT * FROM courses WHERE isAvailable = ?', [true]);
+        const [result] = await conn.query('SELECT courses.CourseID, courses.Title, users.Name AS TeacherName, courses.isAvailable FROM courses JOIN users ON courses.TeacherID = users.UserID WHERE courses.isAvailable = ?',
+            [true]
+        );
         conn.release();
         res.status(200).json(result);
     } catch (error) {
