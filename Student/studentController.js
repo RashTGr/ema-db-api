@@ -20,11 +20,11 @@ exports.getCourses = async (req, res) => {
     SELECT
         courses.CourseID,
         courses.Title,
-        users.Name AS TeacherName,
+        IFNULL(users.Name, 'ToBeConfirmed') AS TeacherName,
         courses.isAvailable
     FROM
         courses
-    JOIN
+    LEFT JOIN
         users
     ON
         courses.TeacherID = users.UserID
