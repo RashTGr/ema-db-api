@@ -3,12 +3,10 @@ const app = express();
 const apiPort = process.env.apiPort || 3000;
 const db = require('./config/db');
 
-
 // Imports for admin, teacher and student routes
 const adminRoutes = require('./Admin/adminRoutes');
 const teacherRoutes = require('./Teacher/teacherRoutes');
 const studentRoutes = require('./Student/studentRoutes');
-
 
 // Establish a connection to the database
 try {
@@ -24,7 +22,6 @@ try {
     console.error('Failed to connect to the MySQL database', error);
 }
 
-
 // JSON middleware to parse request bodies
 app.use(express.json());
 
@@ -32,7 +29,6 @@ app.use(express.json());
 app.use('/admin', adminRoutes);
 app.use('/teacher', teacherRoutes);
 app.use('/student', studentRoutes)
-
 
 // Start server and sync DB
 app.listen(apiPort, () => {

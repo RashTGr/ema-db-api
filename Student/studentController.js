@@ -17,20 +17,10 @@ exports.apiKeyMiddleware = (req, res, next) => {
 // Get all available courses
 exports.getCourses = async (req, res) => {
     const sql = `
-    SELECT
-        courses.CourseID,
-        courses.Title,
-        IFNULL(users.Name, 'ToBeConfirmed') AS TeacherName,
-        courses.isAvailable
-    FROM
-        courses
-    LEFT JOIN
-        users
-    ON
-        courses.TeacherID = users.UserID
-    WHERE
-        courses.isAvailable = ?
-    `;
+    SELECT courses.CourseID, courses.Title,
+        IFNULL(users.Name, 'ToBeConfirmed') AS TeacherName, courses.isAvailable
+    FROM courses LEFT JOIN users ON courses.TeacherID = users.UserID
+    WHERE courses.isAvailable = ?`;
 
     try {
         const conn = await pool.getConnection();
